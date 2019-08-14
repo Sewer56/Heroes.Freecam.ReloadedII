@@ -7,7 +7,9 @@
 </div>
 
 # Prerequisites
-The CRI FS Hook uses the [Hooks Shared Library](https://github.com/Sewer56/Reloaded.SharedLib.Hooks).
+The Freecam uses the [Hooks Shared Library](https://github.com/Sewer56/Reloaded.SharedLib.Hooks).
+Please download and extract that mod first.
+The Freecam uses the [Controller Hook](https://github.com/Sewer56/Heroes.Controller.Hook.ReloadedII).
 Please download and extract that mod first.
 
 # About This Project
