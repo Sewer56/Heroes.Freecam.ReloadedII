@@ -2,7 +2,7 @@
   "ModId": "sonicheroes.utils.freecam",
   "ModName": "Heroes Freecam",
   "ModAuthor": "Sewer56",
-  "ModVersion": "1.0.1",
+  "ModVersion": "1.0.2",
   "ModDescription": "A free camera for the PC version of Sonic Heroes. Provides additional utilities like freezing world, teleporting and removing HUD.",
   "ModDll": "sonicheroes.utils.freecam.dll",
   "ModIcon": "Preview.png",

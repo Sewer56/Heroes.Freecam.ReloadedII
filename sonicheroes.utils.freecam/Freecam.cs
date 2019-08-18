@@ -115,10 +115,10 @@ namespace sonicheroes.utils.freecam
 
             // Modify Move Speed (DPAD UD)
             if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.DpadUp))
-                _heroesController.MoveSpeed -= (_heroesController.MoveSpeed * 0.011619440F); // Calculated using Geometric Progression; Approx 1 second for 2x increase.
+                _heroesController.MoveSpeed += (_heroesController.MoveSpeed * 0.011619440F); // Calculated using Geometric Progression; Approx 1 second for 2x increase.
 
             if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.DpadDown))
-                _heroesController.MoveSpeed += (_heroesController.MoveSpeed * 0.011619440F); // Calculated using Geometric Progression; Approx 1 second for 2x increase.
+                _heroesController.MoveSpeed -= (_heroesController.MoveSpeed * 0.011619440F); // Calculated using Geometric Progression; Approx 1 second for 2x increase.
 
             // Modify Rotate Speed (DPAD LR)
             if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.DpadRight))
