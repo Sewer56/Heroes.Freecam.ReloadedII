@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SharpDX;
+﻿using SharpDX;
 
-namespace Reloaded_Mod_Template.Utilities
+namespace sonicheroes.utils.freecam.Utilities
 {
     /// <summary>
     /// The CameraVectors class calculates and provides the forward, right and up vector for a generic

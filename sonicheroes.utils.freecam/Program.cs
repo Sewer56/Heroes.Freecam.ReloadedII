@@ -7,7 +7,7 @@ using Reloaded.Mod.Interfaces.Internal;
 
 namespace sonicheroes.utils.freecam
 {
-    public class Program : IMod, IExports
+    public class Program : IMod
     {
         private const string ControllerHookModId = "sonicheroes.controller.hook";
 
@@ -16,7 +16,7 @@ namespace sonicheroes.utils.freecam
         private WeakReference<IControllerHook> _controllerHook;
         private WeakReference<IReloadedHooks> _reloadedHooks;
 
-        private Freecam _freecam;
+        private Freecam[] _freeCameras;
 
         public void Start(IModLoaderV1 loader)
         {
@@ -38,19 +38,34 @@ namespace sonicheroes.utils.freecam
         private void ModUnloading(IModV1 mod, IModConfigV1 modConfig)
         {
             if (modConfig.ModId == ControllerHookModId)
-                _freecam.Suspend();
+                DoSuspend();
+        }
+
+        private void DoSuspend()
+        {
+            foreach (var cam in _freeCameras)
+                cam.Suspend();
+        }
+
+        private void DoResume()
+        {
+            foreach (var cam in _freeCameras)
+                cam.Resume();
         }
 
         private void Initialize()
         {
             _controllerHook = _modLoader.GetController<IControllerHook>();
             _reloadedHooks  = _modLoader.GetController<IReloadedHooks>();
-            _freecam        = new Freecam(_controllerHook, _reloadedHooks);
+            _freeCameras        = new Freecam[4];
+
+            for (int x = 0; x < _freeCameras.Length; x++)
+                _freeCameras[x] = new Freecam(_controllerHook, _reloadedHooks, x);
         }
 
         /* Mod loader actions. */
-        public void Suspend() => _freecam.Suspend();
-        public void Resume()  => _freecam.Resume();
+        public void Suspend() => DoSuspend();
+        public void Resume()  => DoResume();
         public void Unload()  => Suspend();
 
         public bool CanUnload()  => true;
@@ -58,6 +73,5 @@ namespace sonicheroes.utils.freecam
 
         /* Automatically called by the mod loader when the mod is about to be unloaded. */
         public Action Disposing { get; }
-        public Type[] GetTypes() => new Type[0];
     }
 }

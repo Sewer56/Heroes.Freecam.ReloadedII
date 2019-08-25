@@ -1,4 +1,4 @@
-﻿namespace Reloaded_Mod_Template.Enums
+﻿namespace sonicheroes.utils.freecam.Enums
 {
     public enum GameState
     {

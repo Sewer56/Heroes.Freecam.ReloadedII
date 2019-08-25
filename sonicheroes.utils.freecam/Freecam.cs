@@ -6,8 +6,6 @@ using Heroes.Controller.Hook.Interfaces;
 using Heroes.Controller.Hook.Interfaces.Enums;
 using Heroes.Controller.Hook.Interfaces.Structures;
 using Reloaded.Hooks.ReloadedII.Interfaces;
-using Reloaded_Mod_Template;
-using Reloaded_Mod_Template.Utilities;
 
 namespace sonicheroes.utils.freecam
 {
@@ -15,12 +13,14 @@ namespace sonicheroes.utils.freecam
     {
         private WeakReference<IControllerHook> _controllerHook;
         private HeroesController _heroesController; // Named HeroesController as it lets us Control Sonic Heroes
+        private int _port;
 
         /* Creation / Destruction */
-        public Freecam(WeakReference<IControllerHook> controllerHook, WeakReference<IReloadedHooks> reloadedHooks)
+        public Freecam(WeakReference<IControllerHook> controllerHook, WeakReference<IReloadedHooks> reloadedHooks, int port)
         {
+            _port = port;
             _controllerHook   = controllerHook;
-            _heroesController = new HeroesController(reloadedHooks);
+            _heroesController = new HeroesController(reloadedHooks, port);
 
             if (_controllerHook.TryGetTarget(out var target))
                 target.OnInput += OnInput;
@@ -49,7 +49,7 @@ namespace sonicheroes.utils.freecam
         private void OnInput(ExtendedHeroesController inputs, int port)
         {
             // Only process inputs ingame.
-            if (port != 0)
+            if (port != _port)
                 return;
 
             if (!_heroesController.IsInMenu() && Utility.IsWindowActivated())

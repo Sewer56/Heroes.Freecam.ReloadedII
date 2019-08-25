@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
 // ReSharper disable InconsistentNaming
 
-namespace Reloaded_Mod_Template.Structs
+namespace sonicheroes.utils.freecam.Structs
 {
     public struct Character
     {

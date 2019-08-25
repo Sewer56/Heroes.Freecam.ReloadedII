@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Reloaded.Hooks.Definitions;
 using Reloaded.Hooks.Definitions.X86;
 using Reloaded.Hooks.ReloadedII.Interfaces;
-using Reloaded_Mod_Template.Enums;
-using Reloaded_Mod_Template.Structs;
-using Reloaded_Mod_Template.Utilities;
 using SharpDX;
+using sonicheroes.utils.freecam.Enums;
+using sonicheroes.utils.freecam.Structs;
+using sonicheroes.utils.freecam.Utilities;
 
-namespace Reloaded_Mod_Template
+namespace sonicheroes.utils.freecam
 {
     public unsafe class HeroesController
     {
@@ -47,10 +45,10 @@ namespace Reloaded_Mod_Template
         public bool IsCameraEnabled => *_cameraEnabled;
 
         // Characters
-        private CharacterPointers* _characters = (CharacterPointers*) 0x009CE820;
+        private CharacterPointers* _characters;
 
         // Camera Business
-        private HeroesCamera* _camera           = (HeroesCamera*) 0x00A60C30;
+        private HeroesCamera* _camera;
         private bool*      _cameraEnabled       = (bool*) 0x00A69880;
         private float      _moveSpeed           = 5F;
         private float      _rotateSpeed         = 2F;
@@ -64,8 +62,27 @@ namespace Reloaded_Mod_Template
         private IHook<DrawHud> _drawHUDHook;
 
         // Constructor
-        public HeroesController(WeakReference<IReloadedHooks> reloadedHooks)
+        public HeroesController(WeakReference<IReloadedHooks> reloadedHooks, int port)
         {
+            /* There is an array of pointers at 00A4CE98 but the memory they point to is static, so we can use what they point to directly. */
+            switch (port)
+            {
+                case 0:
+                    _camera = (HeroesCamera*)0x00A60C30;
+                    break;
+                case 1:
+                    _camera = (HeroesCamera*)0x00A62F54;
+                    break;
+                case 2:
+                    _camera = (HeroesCamera*)0x00A65278;
+                    break;
+                case 3:
+                    _camera = (HeroesCamera*)0x00A6759C;
+                    break;
+            }
+
+            _characters = &((CharacterPointers*) 0x009CE820)[port];
+
             if (reloadedHooks.TryGetTarget(out var hooks))
             {
                 _drawHUDHook = hooks.CreateHook<DrawHud>(DrawHudImpl, 0x0041DFD0).Activate();

@@ -1,10 +1,11 @@
 ﻿using System;
-using Reloaded_Mod_Template.Utilities;
+using System.Runtime.InteropServices;
 using SharpDX;
+using sonicheroes.utils.freecam.Utilities;
 
 // ReSharper disable ConvertToAutoProperty
 
-namespace Reloaded_Mod_Template.Structs
+namespace sonicheroes.utils.freecam.Structs
 {
     public struct HeroesCamera
     {
