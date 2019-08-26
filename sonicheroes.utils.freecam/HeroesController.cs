@@ -54,8 +54,8 @@ namespace sonicheroes.utils.freecam
         private float      _rotateSpeed         = 2F;
 
         // Freeze/Unfreeze.
+        private static GameState _lastGameState;
         private GameState* _gameStatePointer = (GameState*)0x008D66F0;
-        private GameState _lastGameState;
         private HeroesCamera _cachedCamera;
 
         // Hook which conditionally draws HUD.
