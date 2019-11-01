@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Heroes.Controller.Hook.Interfaces;
-using Heroes.Controller.Hook.Interfaces.Enums;
+using Heroes.Controller.Hook.Interfaces.Definitions;
 using Heroes.Controller.Hook.Interfaces.Structures;
+using Heroes.Controller.Hook.Interfaces.Structures.Interfaces;
 using Reloaded.Hooks.ReloadedII.Interfaces;
+using SharpDX;
 
 namespace sonicheroes.utils.freecam
 {
@@ -46,7 +48,7 @@ namespace sonicheroes.utils.freecam
         }
 
         /* Controller Handler */
-        private void OnInput(ExtendedHeroesController inputs, int port)
+        private void OnInput(IExtendedHeroesController inputs, int port)
         {
             // Only process inputs ingame.
             if (port != _port)
@@ -78,15 +80,15 @@ namespace sonicheroes.utils.freecam
             }
         }
 
-        private void HandleFreeMode(ref ExtendedHeroesController inputs)
+        private void HandleFreeMode(ref IExtendedHeroesController inputs)
         {
             // Camera Movement Sticks
             _heroesController.MoveForward(inputs.LeftStickY * -1);
             _heroesController.MoveLeft(inputs.LeftStickX * -1);
 
             // Camera Rotation Sticks
-            _heroesController.RotateUp(inputs.RightStickY * -1);
-            _heroesController.RotateRight(inputs.RightStickX * -1);
+            var vector = new Vector3(inputs.RightStickX * -1, inputs.RightStickY * -1, 0);
+            _heroesController.Rotate(ref vector);
 
             // Camera Roll Triggers
             // Note: The game sets Camera L/R button flags if the pressure is above 0.
@@ -127,19 +129,23 @@ namespace sonicheroes.utils.freecam
             if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.DpadLeft))
                 _heroesController.RotateSpeed -= (_heroesController.RotateSpeed * 0.011619440F);
 
+            // Ignore if modifier key is held.
+            if (!ButtonPressed(inputs.ButtonFlags, ButtonFlags.TeamBlast))
+            {
+                // Toggle HUD (B)
+                if (ButtonPressed(inputs.OneFramePressButtonFlag, ButtonFlags.FormationR))
+                {
+                    _heroesController.EnableHud = !_heroesController.EnableHud;
+                }
+
+                // Teleport Character (A)
+                if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.Jump))
+                    _heroesController.TeleportCharacterToCamera();
+            }
+
             // Reset Camera (X)
             if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.Action))
                 _heroesController.ResetCamera();
-
-            // Toggle HUD (B)
-            if (ButtonPressed(inputs.OneFramePressButtonFlag, ButtonFlags.FormationR))
-            {
-                _heroesController.EnableHud = !_heroesController.EnableHud;
-            }
-
-            // Teleport Character (A)
-            if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.Jump))
-                _heroesController.TeleportCharacterToCamera();
 
             // Reset Roll (Y)
             if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.FormationL))

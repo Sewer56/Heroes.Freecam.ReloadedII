@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Reloaded.Hooks.Definitions;
 using Reloaded.Hooks.Definitions.X86;
@@ -7,6 +8,7 @@ using SharpDX;
 using sonicheroes.utils.freecam.Enums;
 using sonicheroes.utils.freecam.Structs;
 using sonicheroes.utils.freecam.Utilities;
+using IReloadedHooks = Reloaded.Hooks.ReloadedII.Interfaces.IReloadedHooks;
 
 namespace sonicheroes.utils.freecam
 {
@@ -174,29 +176,26 @@ namespace sonicheroes.utils.freecam
         // B. Rotate the said direction by the current roll.
         // C. Apply rotation.
 
-        public void RotateUp(float speed)
+        public void Rotate(ref Vector3 rotation)
         {
-            Vector3 upVector = new Vector3(0, speed * RotateSpeed, 0);
-            upVector = RotateVectorAboutZ(ref upVector, -1 * _camera[0].RotationRoll);
+            Vector3 rotationVector = new Vector3(rotation.X * RotateSpeed, rotation.Y * RotateSpeed, 0);
+            rotationVector = RotateVectorAboutZ(ref rotationVector, -1 * _camera[0].RotationRoll);
 
-            _camera[0].RotationVertical   += upVector.Y;
-            _camera[0].RotationHorizontal += upVector.X;
+            if (IsUpsideDown(_camera[0].RotationVertical))
+                rotationVector.X *= -1;
+
+            _camera[0].RotationVertical   += rotationVector.Y;
+            _camera[0].RotationHorizontal += rotationVector.X;
         }
 
-        public void RotateRight(float speed)
+        private bool IsUpsideDown(float rotationVerticalDegrees)
         {
-            // "CAST" If the vertical angle is between 90 and 270 degrees, reverse direction.
-            if (_camera[0].RotationVertical > 90F && _camera[0].RotationVertical < 270F ||
-                _camera[0].RotationVertical < -90F && _camera[0].RotationVertical > -270F)
-            {
-                speed *= -1;
-            }
+            return IsBetween(90F, 270F, rotationVerticalDegrees);
+        }
 
-            Vector3 rightVector = new Vector3(speed * RotateSpeed, 0, 0);
-            rightVector = RotateVectorAboutZ(ref rightVector, -1 * _camera[0].RotationRoll);
-
-            _camera[0].RotationVertical += rightVector.Y;
-            _camera[0].RotationHorizontal += rightVector.X;
+        private bool IsBetween(float x, float y, float value)
+        {
+            return (x <= value && value <= y);
         }
 
         public void RotateRoll(float speed)
@@ -206,9 +205,9 @@ namespace sonicheroes.utils.freecam
 
         public void TeleportCharacterToCamera()
         {
-            (*_characters).LeaderCharacter->positionX = _camera[0].CameraX;
-            (*_characters).LeaderCharacter->positionY = _camera[0].CameraY;
-            (*_characters).LeaderCharacter->positionZ = _camera[0].CameraZ;
+            (*_characters).LeaderCharacter->PositionX = _camera[0].CameraX;
+            (*_characters).LeaderCharacter->PositionY = _camera[0].CameraY;
+            (*_characters).LeaderCharacter->PositionZ = _camera[0].CameraZ;
         }
 
         // Scales camera vectors to set move speed.

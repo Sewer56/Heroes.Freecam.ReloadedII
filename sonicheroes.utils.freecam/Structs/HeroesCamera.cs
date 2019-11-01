@@ -7,6 +7,7 @@ using sonicheroes.utils.freecam.Utilities;
 
 namespace sonicheroes.utils.freecam.Structs
 {
+    [StructLayout(LayoutKind.Sequential, Size = 0x2324)]
     public struct HeroesCamera
     {
         /* Camera Location */
@@ -15,9 +16,9 @@ namespace sonicheroes.utils.freecam.Structs
         private float _cameraZ;
 
         /* Range 0 - 65535 */
-        private int _angleVerticalBams;
-        private int _angleHorizontalBams;
-        private int _angleRollBams;
+        public uint AngleVerticalBams;
+        public uint AngleHorizontalBams;
+        public uint AngleRollBams;
 
         private int _float18;
         private int _float1C;
@@ -47,23 +48,20 @@ namespace sonicheroes.utils.freecam.Structs
 
         public float RotationHorizontal
         {
-            get => BAMSToDegrees(_angleHorizontalBams);
-            set => _angleHorizontalBams = DegreesToBAMS(value % 360F);
+            get => BAMSToDegrees(AngleHorizontalBams);
+            set => AngleHorizontalBams = DegreesToBAMS(value);
         }
 
         public float RotationVertical
         {
-            // Do not allow camera to go beyond 90 degrees.
-            // We have roll if we want to go up-side down.
-
-            get => BAMSToDegrees(_angleVerticalBams);
-            set => _angleVerticalBams = DegreesToBAMS(value % 360);
+            get => BAMSToDegrees(AngleVerticalBams);
+            set => AngleVerticalBams = DegreesToBAMS(value);
         }
 
         public float RotationRoll
         {
-            get => BAMSToDegrees(_angleRollBams);
-            set => _angleRollBams = DegreesToBAMS(value % 360F);
+            get => BAMSToDegrees(AngleRollBams);
+            set => AngleRollBams = DegreesToBAMS(value);
         }
 
         public float LookAtX
@@ -89,12 +87,12 @@ namespace sonicheroes.utils.freecam.Structs
         // Rotation/Direction Methods
         public CameraVectors GetCameraVectors()
         {
-            return CameraVectors.FromYawPitchRoll(BAMSToRadians(_angleHorizontalBams), BAMSToRadians(_angleVerticalBams), BAMSToRadians(_angleRollBams));
+            return CameraVectors.FromYawPitchRoll(BAMSToRadians(AngleHorizontalBams), BAMSToRadians(AngleVerticalBams), BAMSToRadians(AngleRollBams));
         }
 
         public Vector3 GetYawPitchRollRadians()
         {
-            return new Vector3(BAMSToRadians(_angleHorizontalBams), BAMSToRadians(_angleVerticalBams), BAMSToRadians(_angleRollBams));
+            return new Vector3(BAMSToRadians(AngleHorizontalBams), BAMSToRadians(AngleVerticalBams), BAMSToRadians(AngleRollBams));
         }
 
         // Move/Rotate Methods
@@ -126,19 +124,19 @@ namespace sonicheroes.utils.freecam.Structs
         }
 
         /* BAMS To Degrees Conversion */
-        private int DegreesToBAMS(float degrees)
+        private uint DegreesToBAMS(float degrees)
         {
-            return (int)((degrees / 360F) * 65535F);
+            return (uint)(((degrees % 360F) / 360F) * 65535F);
         }
 
-        private float BAMSToDegrees(int bams)
+        private float BAMSToDegrees(uint bams)
         {
-            return (bams / 65535F) * 360F;
+            return ((bams % 65535F) / 65535F) * 360F;
         }
 
-        private float BAMSToRadians(int bams)
+        private float BAMSToRadians(uint bams)
         {
-            return (float) ((bams / 65535F) * (Math.PI * 2));
+            return (float) (((bams % 65535F) / 65535F) * (Math.PI * 2));
         }
     }
 }
