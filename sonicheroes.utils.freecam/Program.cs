@@ -26,7 +26,6 @@ namespace sonicheroes.utils.freecam
             _modLoader.ModLoading   += ModLoading;
 
             /* Your mod code starts here. */
-            Debugger.Launch();
             Initialize();
         }
 

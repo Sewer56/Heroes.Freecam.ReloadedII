@@ -1,19 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>C:\Users\Sewer56\Desktop\Reloaded II\Mods\sonicheroes.utils.freecam\</OutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>C:\Users\Sewer56\Desktop\Reloaded II\Mods\sonicheroes.utils.freecam\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,9 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Reloaded.Mod.Interfaces" Version="1.5.0" />
+    <PackageReference Include="Reloaded.Mod.Interfaces" Version="1.6.0" />
     <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.2.0" />
-    <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>
