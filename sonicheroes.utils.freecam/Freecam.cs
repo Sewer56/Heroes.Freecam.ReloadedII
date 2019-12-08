@@ -7,7 +7,8 @@ using Heroes.Controller.Hook.Interfaces.Definitions;
 using Heroes.Controller.Hook.Interfaces.Structures;
 using Heroes.Controller.Hook.Interfaces.Structures.Interfaces;
 using Reloaded.Hooks.ReloadedII.Interfaces;
-using SharpDX;
+using System.Numerics;
+using Heroes.SDK.API;
 
 namespace sonicheroes.utils.freecam
 {
@@ -18,11 +19,11 @@ namespace sonicheroes.utils.freecam
         private int _port;
 
         /* Creation / Destruction */
-        public Freecam(WeakReference<IControllerHook> controllerHook, WeakReference<IReloadedHooks> reloadedHooks, int port)
+        public Freecam(WeakReference<IControllerHook> controllerHook, int port)
         {
             _port = port;
             _controllerHook   = controllerHook;
-            _heroesController = new HeroesController(reloadedHooks, port);
+            _heroesController = new HeroesController(port);
 
             if (_controllerHook.TryGetTarget(out var target))
                 target.OnInput += OnInput;
@@ -54,7 +55,7 @@ namespace sonicheroes.utils.freecam
             if (port != _port)
                 return;
 
-            if (!_heroesController.IsInMenu() && Utility.IsWindowActivated())
+            if (!_heroesController.IsInMenu() && Window.IsAnyWindowActivated())
             {
                 // Toggle Freeze On/Off
                 if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.TeamBlast) && ButtonPressed(inputs.OneFramePressButtonFlag, ButtonFlags.Jump))
@@ -88,14 +89,14 @@ namespace sonicheroes.utils.freecam
 
             // Camera Rotation Sticks
             var vector = new Vector3(inputs.RightStickX * -1, inputs.RightStickY * -1, 0);
-            _heroesController.Rotate(ref vector);
+            _heroesController.Rotate(vector);
 
             // Camera Roll Triggers
             // Note: The game sets Camera L/R button flags if the pressure is above 0.
             // We disallow bumpers if rotating with triggers.
             if (inputs.LeftTriggerPressure > 0)
             {
-                _heroesController.RotateRoll(inputs.LeftTriggerPressure / (float)byte.MaxValue);
+                _heroesController.Rotate(new Vector3(0,0, inputs.LeftTriggerPressure / (float)byte.MaxValue));
             }
             else
             {
@@ -106,7 +107,7 @@ namespace sonicheroes.utils.freecam
 
             if (inputs.RightTriggerPressure > 0)
             {
-                _heroesController.RotateRoll((inputs.RightTriggerPressure / (float)byte.MaxValue) * -1F);
+                _heroesController.Rotate(new Vector3(0, 0, (inputs.RightTriggerPressure / (float)byte.MaxValue) * -1F));
             }
             else
             {

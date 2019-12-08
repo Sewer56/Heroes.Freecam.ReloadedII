@@ -4,6 +4,7 @@ using Heroes.Controller.Hook.Interfaces;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
+using Heroes.SDK;
 
 namespace sonicheroes.utils.freecam
 {
@@ -25,6 +26,7 @@ namespace sonicheroes.utils.freecam
             _modLoader.ModLoading   += ModLoading;
 
             /* Your mod code starts here. */
+            Debugger.Launch();
             Initialize();
         }
 
@@ -55,12 +57,15 @@ namespace sonicheroes.utils.freecam
 
         private void Initialize()
         {
+            // Reloaded II controllers etc.
             _controllerHook = _modLoader.GetController<IControllerHook>();
             _reloadedHooks  = _modLoader.GetController<IReloadedHooks>();
-            _freeCameras        = new Freecam[4];
+            _reloadedHooks.TryGetTarget(out var reloadedHooks);
+            SDK.Init(reloadedHooks);
 
+            _freeCameras    = new Freecam[4];
             for (int x = 0; x < _freeCameras.Length; x++)
-                _freeCameras[x] = new Freecam(_controllerHook, _reloadedHooks, x);
+                _freeCameras[x] = new Freecam(_controllerHook, x);
         }
 
         /* Mod loader actions. */

@@ -8,10 +8,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>C:\Users\Sewer56\Desktop\Reloaded II\Mods\sonicheroes.utils.freecam\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>C:\Users\Sewer56\Desktop\Reloaded II\Mods\sonicheroes.utils.freecam\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,6 +42,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Submodules\Heroes.Controller.Hook.ReloadedII\Heroes.Controller.Hook.Interfaces\Heroes.Controller.Hook.Interfaces.csproj" />
+    <ProjectReference Include="..\Submodules\Heroes.SDK\Heroes.SDK.Library\Heroes.SDK.csproj" />
   </ItemGroup>
 
 </Project>

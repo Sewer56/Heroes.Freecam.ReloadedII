@@ -1,27 +1,28 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using Heroes.SDK.Classes.PseudoNativeClasses;
+using Heroes.SDK.Definitions.Enums;
+using Heroes.SDK.Definitions.Structures.World.Camera;
 using Reloaded.Hooks.Definitions;
-using Reloaded.Hooks.Definitions.X86;
-using Reloaded.Hooks.ReloadedII.Interfaces;
-using SharpDX;
-using sonicheroes.utils.freecam.Enums;
-using sonicheroes.utils.freecam.Structs;
-using sonicheroes.utils.freecam.Utilities;
-using IReloadedHooks = Reloaded.Hooks.ReloadedII.Interfaces.IReloadedHooks;
+using Heroes.SDK.API;
+using System.Numerics;
+using Heroes.SDK.Definitions.Enums.Custom;
 
 namespace sonicheroes.utils.freecam
 {
     public unsafe class HeroesController
     {
+        /// <summary>
+        /// Minimum speed of rotation or movement.
+        /// </summary>
+        public const float MinimumSpeed = 0.02F;
+
         // Camera Options
         public float RotateSpeed
         {
             get => _rotateSpeed;
             set
             {
-                if (value < 0.02F)
-                    value = 0.02F;
+                if (value < MinimumSpeed)
+                    value = MinimumSpeed;
                 
                 _rotateSpeed = value;
             }
@@ -32,8 +33,8 @@ namespace sonicheroes.utils.freecam
             get => _moveSpeed;
             set
             {
-                if (value < 0.02F)
-                    value = 0.02F;
+                if (value < MinimumSpeed)
+                    value = MinimumSpeed;
 
                 _moveSpeed = value;
             }
@@ -43,211 +44,75 @@ namespace sonicheroes.utils.freecam
         public bool EnableHud { get; set; } = true;
 
         // Shorthand Functions
-        public bool IsGameFrozen    => *_gameStatePointer == GameState.InGameSceneFrozen;
-        public bool IsCameraEnabled => *_cameraEnabled;
-
-        // Characters
-        private CharacterPointers* _characters;
+        public bool IsGameFrozen        => State.GameState == GameState.InGameSceneFrozen;
+        public ref bool IsCameraEnabled => ref Camera.IsCameraEnabled;
 
         // Camera Business
-        private HeroesCamera* _camera;
-        private bool*      _cameraEnabled       = (bool*) 0x00A69880;
+        private ref HeroesCamera _camera => ref Camera.Cameras[_port];
         private float      _moveSpeed           = 5F;
         private float      _rotateSpeed         = 2F;
 
         // Freeze/Unfreeze.
         private static GameState _lastGameState;
-        private GameState* _gameStatePointer = (GameState*)0x008D66F0;
         private HeroesCamera _cachedCamera;
 
         // Hook which conditionally draws HUD.
-        private IHook<DrawHud> _drawHUDHook;
+        private IHook<HudFunctions.DispGDisp> _drawHUDHook;
+        private int _port;
 
         // Constructor
-        public HeroesController(WeakReference<IReloadedHooks> reloadedHooks, int port)
+        public HeroesController(int port)
         {
             /* There is an array of pointers at 00A4CE98 but the memory they point to is static, so we can use what they point to directly. */
-            switch (port)
-            {
-                case 0:
-                    _camera = (HeroesCamera*)0x00A60C30;
-                    break;
-                case 1:
-                    _camera = (HeroesCamera*)0x00A62F54;
-                    break;
-                case 2:
-                    _camera = (HeroesCamera*)0x00A65278;
-                    break;
-                case 3:
-                    _camera = (HeroesCamera*)0x00A6759C;
-                    break;
-            }
-
-            _characters = &((CharacterPointers*) 0x009CE820)[port];
-
-            if (reloadedHooks.TryGetTarget(out var hooks))
-            {
-                _drawHUDHook = hooks.CreateHook<DrawHud>(DrawHudImpl, 0x0041DFD0).Activate();
-            }
+            _port       = port;
+            _drawHUDHook = HudFunctions.Fun_DrawHud.Hook(DrawHudImpl);
         }
 
         // Hooks
-        private int DrawHudImpl()
-        {
-            if (EnableHud)
-                return _drawHUDHook.OriginalFunction();
-
-            return 0;
-        }
+        private int DrawHudImpl() => EnableHud ? _drawHUDHook.OriginalFunction() : 0;
 
         // Methods: Boolean
-        public bool IsInMenu()
-        {
-            return *_gameStatePointer == GameState.Menu || *_gameStatePointer == GameState.Null;
-        }
-
-        public bool IsPaused()
-        {
-            return *_gameStatePointer == GameState.InGamePaused || *_gameStatePointer == GameState.InGamePausedSettings 
-                                                                || *_gameStatePointer == GameState.InGamePausedSettingsCamera 
-                                                                || *_gameStatePointer == GameState.InGamePausedSettingsRebinding;
-        }
+        public bool IsInMenu() => State.IsInMainMenu();
+        public bool IsPaused() => State.IsPaused();
 
         // Methods: Freeze
         public void FreezeGame()
         {
-            _lastGameState = *_gameStatePointer;
-            * _gameStatePointer = GameState.InGameSceneFrozen;
+            _lastGameState = State.GameState;
+            State.GameState = GameState.InGameSceneFrozen;
         }
 
         public void UnFreezeGame()
         {
-            *_gameStatePointer = _lastGameState;
+            State.GameState = _lastGameState;
         }
 
         public void FreezeCamera()
         {
-            _cachedCamera = *_camera;
-            *_cameraEnabled = false;
+            _cachedCamera = _camera;
+            Camera.IsCameraEnabled = false;
         }
 
         public void UnFreezeCamera()
         {
             ResetCamera();
-            *_cameraEnabled = true;
+            Camera.IsCameraEnabled = true;
         }
 
-        public void ResetCamera()
-        {
-            *_camera = _cachedCamera;
-        }
-
-        public void ResetCameraRoll()
-        {
-            (*_camera).RotationRoll = 0F;
-        }
+        public void ResetCamera() => _camera = _cachedCamera;
+        public void ResetCameraRoll() => _camera.Rotation.RotationRoll = 0f;
 
         // Methods: Camera
-        public void MoveForward(float speed)
-        {
-            var vectors = _camera[0].GetCameraVectors();            
-            ApplySpeedToCameraVectors(ref vectors, MoveSpeed);
-            ApplySpeedToCameraVectors(ref vectors, speed);
-            _camera[0].MoveCamera(ref vectors.ForwardVector);
-        }
+        public void MoveForward(float speed) => _camera.MoveBy(new Vector3(0, 0, speed * MoveSpeed));
+        public void MoveLeft(float speed) => _camera.MoveBy(new Vector3(speed * MoveSpeed, 0, 0));
+        public void MoveUp(float speed) => _camera.MoveBy(new Vector3(0, speed * MoveSpeed, 0));
+        public void Rotate(Vector3 rotation) => _camera.RotateBy(rotation * RotateSpeed, Transform.Relative, true);
 
-        public void MoveLeft(float speed)
-        {
-            var vectors = _camera[0].GetCameraVectors();
-            ApplySpeedToCameraVectors(ref vectors, MoveSpeed);
-            ApplySpeedToCameraVectors(ref vectors, speed);
-            _camera[0].MoveCamera(ref vectors.LeftVector);
-        }
-
-        public void MoveUp(float speed)
-        {
-            var vectors = _camera[0].GetCameraVectors();
-            ApplySpeedToCameraVectors(ref vectors, MoveSpeed);
-            ApplySpeedToCameraVectors(ref vectors, speed);
-            _camera[0].MoveCamera(ref vectors.UpVector);
-        }
-
-        // A. Get point in direction of our rotation.
-        // B. Rotate the said direction by the current roll.
-        // C. Apply rotation.
-
-        public void Rotate(ref Vector3 rotation)
-        {
-            Vector3 rotationVector = new Vector3(rotation.X * RotateSpeed, rotation.Y * RotateSpeed, 0);
-            rotationVector = RotateVectorAboutZ(ref rotationVector, -1 * _camera[0].RotationRoll);
-
-            if (IsUpsideDown(_camera[0].RotationVertical))
-                rotationVector.X *= -1;
-
-            _camera[0].RotationVertical   += rotationVector.Y;
-            _camera[0].RotationHorizontal += rotationVector.X;
-        }
-
-        private bool IsUpsideDown(float rotationVerticalDegrees)
-        {
-            return IsBetween(90F, 270F, rotationVerticalDegrees);
-        }
-
-        private bool IsBetween(float x, float y, float value)
-        {
-            return (x <= value && value <= y);
-        }
-
-        public void RotateRoll(float speed)
-        {
-            _camera[0].RotationRoll += speed * RotateSpeed;
-        }
-
-        public void TeleportCharacterToCamera()
-        {
-            (*_characters).LeaderCharacter->PositionX = _camera[0].CameraX;
-            (*_characters).LeaderCharacter->PositionY = _camera[0].CameraY;
-            (*_characters).LeaderCharacter->PositionZ = _camera[0].CameraZ;
-        }
-
-        // Scales camera vectors to set move speed.
-        private void ApplySpeedToCameraVectors(ref CameraVectors vectors, float speed)
-        {
-            vectors.UpVector.X *= speed;
-            vectors.UpVector.Y *= speed;
-            vectors.UpVector.Z *= speed;
-
-            vectors.LeftVector.X *= speed;
-            vectors.LeftVector.Y *= speed;
-            vectors.LeftVector.Z *= speed;
-
-            vectors.ForwardVector.X *= speed;
-            vectors.ForwardVector.Y *= speed;
-            vectors.ForwardVector.Z *= speed;
-        }
-
-        private Vector3 RotateVectorAboutZ(ref Vector3 vectorToRotate, float angleDegrees)
-        {
-            float radiansRotation = MathUtil.DegreesToRadians(angleDegrees);
-            Matrix.RotationZ(radiansRotation, out Matrix result);
-            Vector3.Transform(ref vectorToRotate, ref result, out Vector3 rotatedResult);
-            return rotatedResult;
-        }
+        // Methods: Utility
+        public void TeleportCharacterToCamera() => Player.GetCurrentCharacterFly((Players) _port).AsReference().Position = _camera.Position;
 
         /* Mod Loader API */
-        public void Suspend()
-        {
-            _drawHUDHook.Disable();
-        }
-
-        public void Resume()
-        {
-            _drawHUDHook.Enable();
-        }
-
-        /* Function Definitions */
-        [Function(CallingConventions.Cdecl)]
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int DrawHud();
+        public void Suspend() => _drawHUDHook.Disable();
+        public void Resume()  => _drawHUDHook.Enable();
     }
 }
