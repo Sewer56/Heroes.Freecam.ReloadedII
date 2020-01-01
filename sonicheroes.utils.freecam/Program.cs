@@ -60,7 +60,7 @@ namespace sonicheroes.utils.freecam
             _controllerHook = _modLoader.GetController<IControllerHook>();
             _reloadedHooks  = _modLoader.GetController<IReloadedHooks>();
             _reloadedHooks.TryGetTarget(out var reloadedHooks);
-            SDK.Init(reloadedHooks);
+            SDK.Init(reloadedHooks, null);
 
             _freeCameras    = new Freecam[4];
             for (int x = 0; x < _freeCameras.Length; x++)
