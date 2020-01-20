@@ -135,9 +135,7 @@ namespace sonicheroes.utils.freecam
             {
                 // Toggle HUD (B)
                 if (ButtonPressed(inputs.OneFramePressButtonFlag, ButtonFlags.FormationR))
-                {
                     _heroesController.EnableHud = !_heroesController.EnableHud;
-                }
 
                 // Teleport Character (A)
                 if (ButtonPressed(inputs.ButtonFlags, ButtonFlags.Jump))

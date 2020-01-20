@@ -65,7 +65,7 @@ namespace sonicheroes.utils.freecam
         {
             /* There is an array of pointers at 00A4CE98 but the memory they point to is static, so we can use what they point to directly. */
             _port       = port;
-            _drawHUDHook = HudFunctions.Fun_DrawHud.Hook(DrawHudImpl);
+            _drawHUDHook = HudFunctions.Fun_DrawHud.Hook(DrawHudImpl).Activate();
         }
 
         // Hooks
