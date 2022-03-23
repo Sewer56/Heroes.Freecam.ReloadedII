@@ -1,22 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>preview</LangVersion>
+    <OutputPath>$(RELOADEDIIMODS)\sonicheroes.utils.freecam</OutputPath>
+    <RobustILLink>true</RobustILLink>
   </PropertyGroup>
 
+  <Import Project="Robust.Trimming.targets" />
+
   <ItemGroup>
-    <None Remove="Controls.txt" />
+    <RobustLinkRoots Include="sonicheroes.utils.freecam" />
+    <RobustLinkAssemblies Include="Heroes.SDK" />
+    <RobustLinkAssemblies Include="Reloaded.Memory" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="ModConfig.json" />
     <None Remove="Preview.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Controls.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="ModConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -26,8 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Reloaded.Mod.Interfaces" Version="1.6.0" />
-    <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.2.0" />
+    <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.1.0" />
+    <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.9.0" />
   </ItemGroup>
 
   <ItemGroup>

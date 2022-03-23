@@ -2,10 +2,51 @@
   "ModId": "sonicheroes.utils.freecam",
   "ModName": "Heroes Freecam",
   "ModAuthor": "Sewer56",
-  "ModVersion": "2.0.3",
+  "ModVersion": "2.0.4",
   "ModDescription": "A free camera for the PC version of Sonic Heroes. Provides additional utilities like freezing world, teleporting and removing HUD.",
   "ModDll": "sonicheroes.utils.freecam.dll",
   "ModIcon": "Preview.png",
-  "ModDependencies": [ "sonicheroes.controller.hook", "reloaded.sharedlib.hooks" ],
-  "SupportedAppId": [ "Tsonic_win.EXE", "tsonic_win.exe" ]
+  "ModR2RManagedDll32": "",
+  "ModR2RManagedDll64": "",
+  "ModNativeDll32": "",
+  "ModNativeDll64": "",
+  "IsLibrary": false,
+  "ReleaseMetadataFileName": "Sewer56.Update.ReleaseMetadata.json",
+  "PluginData": {
+    "GitHubRelease": {
+      "UserName": "Sewer56",
+      "RepositoryName": "Heroes.Freecam.ReloadedII",
+      "UseReleaseTag": true,
+      "AssetFileName": "Mod.zip"
+    },
+    "GitHubDependencies": {
+      "IdToConfigMap": {
+        "reloaded.sharedlib.hooks": {
+          "Config": {
+            "UserName": "Reloaded.SharedLib.Hooks.ReloadedII",
+            "RepositoryName": "Sewer56",
+            "UseReleaseTag": true,
+            "AssetFileName": "reloaded.sharedlib.hooks.zip"
+          }
+        },
+        "sonicheroes.controller.hook": {
+          "Config": {
+            "UserName": "Heroes.Controller.Hook.ReloadedII",
+            "RepositoryName": "Sewer56",
+            "UseReleaseTag": false,
+            "AssetFileName": "Mod.zip"
+          }
+        }
+      }
+    }
+  },
+  "IsUniversalMod": false,
+  "ModDependencies": [
+    "reloaded.sharedlib.hooks",
+    "sonicheroes.controller.hook"
+  ],
+  "OptionalDependencies": [],
+  "SupportedAppId": [
+    "tsonic_win.exe"
+  ]
 }
