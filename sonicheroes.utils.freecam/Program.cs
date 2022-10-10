@@ -1,22 +1,24 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Heroes.Controller.Hook.Interfaces;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
 using Heroes.SDK;
 
+#if NET5_0_OR_GREATER
+    [module: SkipLocalsInit]
+#endif
 namespace sonicheroes.utils.freecam;
 
 public class Program : IMod
 {
     private const string ControllerHookModId = "sonicheroes.controller.hook";
 
-    private IModLoader _modLoader;
-
-    private WeakReference<IControllerHook> _controllerHook;
-    private WeakReference<IReloadedHooks> _reloadedHooks;
-
-    private Freecam[] _freeCameras;
+    private IModLoader _modLoader = null!;
+    private WeakReference<IControllerHook> _controllerHook = null!;
+    private WeakReference<IReloadedHooks> _reloadedHooks = null!;
+    private Freecam[] _freeCameras = null!;
 
     public void Start(IModLoaderV1 loader)
     {
@@ -81,5 +83,5 @@ public class Program : IMod
     public bool CanSuspend() => true;
 
     /* Automatically called by the mod loader when the mod is about to be unloaded. */
-    public Action Disposing { get; }
+    public Action Disposing { get; } = () => { };
 }

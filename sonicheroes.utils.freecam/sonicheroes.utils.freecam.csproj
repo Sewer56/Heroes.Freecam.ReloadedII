@@ -5,17 +5,22 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
     <OutputPath>$(RELOADEDIIMODS)\sonicheroes.utils.freecam</OutputPath>
-    <RobustILLink>true</RobustILLink>
+    
+    <!-- IL Trimming Support for Framework Dependent Apps. Unofficial.
+         If you set this to true, trimming will be enabled when you publish the mod.
+         Test trimming with: `BuildLinked.ps1` in PowerShell. -->
+    <ReloadedILLink>true</ReloadedILLink>
   </PropertyGroup>
 
-  <Import Project="Robust.Trimming.targets" />
+  <Import Project="Reloaded.Trimming.targets" />
 
   <ItemGroup>
-    <RobustLinkRoots Include="sonicheroes.utils.freecam" />
-    <RobustLinkAssemblies Include="Heroes.SDK" />
-    <RobustLinkAssemblies Include="Reloaded.Memory" />
+    <ReloadedLinkRoots Include="sonicheroes.utils.freecam" />
+    <ReloadedLinkAssemblies Include="Heroes.SDK" />
+    <ReloadedLinkAssemblies Include="Reloaded.Memory" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.1.0" />
+    <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.3.0" ExcludeAssets="runtime" />
     <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.9.0" />
   </ItemGroup>
 
